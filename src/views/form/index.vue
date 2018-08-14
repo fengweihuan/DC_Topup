@@ -1,85 +1,159 @@
 <template>
-  <div class="app-container">
-    <el-form ref="form" :model="form" label-width="120px">
-      <el-form-item label="Activity name">
-        <el-input v-model="form.name"></el-input>
-      </el-form-item>
-      <el-form-item label="Activity zone">
-        <el-select v-model="form.region" placeholder="please select your zone">
-          <el-option label="Zone one" value="shanghai"></el-option>
-          <el-option label="Zone two" value="beijing"></el-option>
-        </el-select>
-      </el-form-item>
-      <el-form-item label="Activity time">
-        <el-col :span="11">
-          <el-date-picker type="date" placeholder="Pick a date" v-model="form.date1" style="width: 100%;"></el-date-picker>
-        </el-col>
-        <el-col class="line" :span="2">-</el-col>
-        <el-col :span="11">
-          <el-time-picker type="fixed-time" placeholder="Pick a time" v-model="form.date2" style="width: 100%;"></el-time-picker>
-        </el-col>
-      </el-form-item>
-      <el-form-item label="Instant delivery">
-        <el-switch v-model="form.delivery"></el-switch>
-      </el-form-item>
-      <el-form-item label="Activity type">
-        <el-checkbox-group v-model="form.type">
-          <el-checkbox label="Online activities" name="type"></el-checkbox>
-          <el-checkbox label="Promotion activities" name="type"></el-checkbox>
-          <el-checkbox label="Offline activities" name="type"></el-checkbox>
-          <el-checkbox label="Simple brand exposure" name="type"></el-checkbox>
-        </el-checkbox-group>
-      </el-form-item>
-      <el-form-item label="Resources">
-        <el-radio-group v-model="form.resource">
-          <el-radio label="Sponsor"></el-radio>
-          <el-radio label="Venue"></el-radio>
-        </el-radio-group>
-      </el-form-item>
-      <el-form-item label="Activity form">
-        <el-input type="textarea" v-model="form.desc"></el-input>
+  <div class="app-container client_wrap">
+    <el-form :inline="true" :model="formInline" class="demo-form-inline">
+      <el-form-item label="" >
+        <el-input v-model="formInline.user"  style="width:300px" placeholder="请输入姓名" clearable>
+           <i
+            class="el-icon-search el-input__icon"
+            slot="prefix">
+          </i>
+        </el-input>
       </el-form-item>
       <el-form-item>
-        <el-button type="primary" @click="onSubmit">Create</el-button>
-        <el-button @click="onCancel">Cancel</el-button>
+        <el-button type="primary" @click="onSubmit">查询</el-button>
+      </el-form-item>
+      <el-form-item style="float:right;margin-right:80px">
+        <el-button type="primary" @click="addUser" >添加用户</el-button>
       </el-form-item>
     </el-form>
+    <el-table :data="list" v-loading="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+      <el-table-column align="center" width="100px" label='序号' >
+        <template slot-scope="scope">
+          {{scope.$index + 1}}
+        </template>
+      </el-table-column>
+      <el-table-column label="姓名" align="center">
+        <template slot-scope="scope">
+          <span>{{scope.row.user_name	}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="账户号码" align="center">
+        <template slot-scope="scope">
+          {{scope.row.user_id}}
+        </template>
+      </el-table-column>
+      <el-table-column label="手机"  align="center">
+        <template slot-scope="scope">
+          {{scope.row.user_mobile}}
+        </template>
+      </el-table-column>
+      <el-table-column label="管理员" align="center">
+        <template slot-scope="scope">
+          {{scope.row.is_admin}}
+        </template>
+      </el-table-column>
+      <el-table-column class-name="status-col" label="账户状态" align="center">
+        <template slot-scope="scope">
+          {{scope.row.account_name}}
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="created_at" label="创建时间">
+        <template slot-scope="scope">
+          <i class="el-icon-time"></i>
+          <span>{{scope.row.follow_time}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" width="120px" label="操作">
+        <template slot-scope="scope">
+          <el-button type="primary" @click="editHandle(scope.row)">编辑</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination 
+      class="pagination_wrap"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page.sync="currentPage"
+      :page-size="100"
+      layout="prev, pager, next, jumper"
+      :total="1000">
+    </el-pagination>
+    <addUser ref="addUser"  v-bind:addType="addType"  v-bind:editForm="editForm"></addUser>
   </div>
 </template>
 
 <script>
+import addUser from './components/addUser.vue'
 export default {
+  components: {
+    addUser
+  },
   data() {
     return {
-      form: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
-        delivery: false,
-        type: [],
-        resource: '',
-        desc: ''
-      }
+      list: null,
+      listLoading: true,
+      formInline: {
+        user: '',
+        order_status: ''
+      },
+      formLabelWidth: '120px',
+      dialogFormVisible: false,
+      currentPage: 1,
+      addType: '',
+      editForm: null
     }
   },
+  created() {
+    this.fetchData()
+  },
   methods: {
-    onSubmit() {
-      this.$message('submit!')
+    fetchData() {
+      this.listLoading = true
+      // getList(this.listQuery).then(response => {
+      //   this.list = response.data.items
+      //   this.listLoading = false
+      // })
+      let data = []
+      for(let i = 0; i < 8; i ++) {
+        let json = {
+          user_id: 'te_chen',
+          user_name: '白百合',
+          user_mobile: '13136107533',
+          is_admin: '是',
+          account_name: '启用',
+          follow_time: '2018-08-08 17:09:11'
+        }
+        data.push(json)
+      }
+      this.list = data
+      this.listLoading = false
     },
-    onCancel() {
-      this.$message({
-        message: 'cancel!',
-        type: 'warning'
+    onSubmit() {
+      console.log(this.formInline)
+      this.fetchData()
+    },
+    addUser () {
+      this.addType = 'add'
+      this.$nextTick(() => {
+        this.$refs.addUser.show()
       })
+    },
+    editHandle (row) {
+      this.addType = 'edit'
+      this.editForm = row
+      this.$nextTick(() => {
+        this.$refs.addUser.show()
+      })
+    },
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`);
     }
   }
 }
 </script>
-
-<style scoped>
-.line{
-  text-align: center;
+<style rel="stylesheet/scss" lang="scss" scoped>
+.client_wrap{
+  .pagination_wrap{
+    margin-top: 40px;
+    text-align: center;
+  }
+  .awater{
+    width: 80px;
+    height: 80px;
+  }
 }
 </style>
 

@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container client_wrap">
+  <div class="app-container operate">
     <el-form :inline="true" :model="formInline" class="demo-form-inline">
       <el-form-item label="" >
         <el-input v-model="formInline.user"  style="width:300px" placeholder="运营商名称" clearable>
@@ -19,40 +19,35 @@
           {{scope.$index + 1}}
         </template>
       </el-table-column>
-      <el-table-column label="头像" align="center">
-        <template slot-scope="scope">
-          <img :src="scope.row.awater" alt="" class="awater">
-        </template>
-      </el-table-column>
-      <el-table-column label="微信昵称" align="center">
+      <el-table-column label="运营商名称" align="center">
         <template slot-scope="scope">
           <span>{{scope.row.nickname}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="手机"  align="center">
+      <el-table-column label="工号"  align="center">
         <template slot-scope="scope">
-          {{scope.row.tel}}
+          {{scope.row.job}}
         </template>
       </el-table-column>
-      <el-table-column label="性别" align="center">
+      <el-table-column label="工号归属" align="center">
         <template slot-scope="scope">
-          {{scope.row.sex}}
+          {{scope.row.job_attach}}
         </template>
       </el-table-column>
-      <el-table-column label="城市" align="center">
+      <el-table-column label="登陆状态" align="center">
         <template slot-scope="scope">
-          {{scope.row.city}}
+          {{scope.row.login_status}}
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="关注状态" align="center">
-        <template slot-scope="scope">
-          {{scope.row.follow_status}}
-        </template>
-      </el-table-column>
-      <el-table-column align="center" prop="created_at" label="关注时间">
+      <el-table-column align="center" prop="created_at" label="登陆时间">
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
-          <span>{{scope.row.follow_time}}</span>
+          <span>{{scope.row.login_time}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" width="120px" label="操作">
+        <template slot-scope="scope">
+          <el-button type="primary" @click="undercarriage(scope.row)">下线</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -75,8 +70,7 @@ export default {
       list: null,
       listLoading: true,
       formInline: {
-        user: '',
-        order_status: ''
+        user: ''
       },
       formLabelWidth: '120px',
       dialogFormVisible: false,
@@ -96,13 +90,11 @@ export default {
       let data = []
       for(let i = 0; i < 8; i ++) {
         let json = {
-          awater: 'http://p949rmsaf.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720180516101622.jpg',
           nickname: '白百合',
-          tel: '13136107533',
-          sex: '女',
-          city: '北京',
-          follow_status: '未关注',
-          follow_time: '2018-08-08 17:09:11'
+          job: 'hstcq_hzdl062',
+          job_attach: '石家庄电信',
+          login_status: '未关注',
+          login_time: '2018-08-08 17:09:11'
         }
         data.push(json)
       }
@@ -112,6 +104,25 @@ export default {
     onSubmit() {
       console.log(this.formInline)
       this.fetchData()
+    },
+    undercarriage (row) {
+      console.log(row)
+      this.$confirm('此操作将下线运营商, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        center: true
+      }).then(() => {
+        this.$message({
+          type: 'success',
+          message: '下线成功!'
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消'
+        });
+      })
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
@@ -123,7 +134,7 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-.client_wrap{
+.operate{
   .pagination_wrap{
     margin-top: 40px;
     text-align: center;
@@ -134,4 +145,5 @@ export default {
   }
 }
 </style>
+
 

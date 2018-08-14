@@ -38,23 +38,27 @@ export const constantRouterMap = [
   },
 
   {
-    path: '/example',
+    path: '/table',
     component: Layout,
-    redirect: '/example/table',
-    name: 'Example',
-    meta: { title: 'Example', icon: 'example' },
     children: [
       {
-        path: 'table',
+        path: 'index',
         name: 'Table',
         component: () => import('@/views/table/index'),
-        meta: { title: 'Table', icon: 'table' }
-      },
+        meta: { title: '订单列表', icon: 'table' }
+      }
+    ]
+  },
+
+  {
+    path: '/tree',
+    component: Layout,
+    children: [
       {
-        path: 'tree',
+        path: 'index',
         name: 'Tree',
         component: () => import('@/views/tree/index'),
-        meta: { title: 'Tree', icon: 'tree' }
+        meta: { title: '客户列表', icon: 'tree' }
       }
     ]
   },
@@ -67,65 +71,46 @@ export const constantRouterMap = [
         path: 'index',
         name: 'Form',
         component: () => import('@/views/form/index'),
-        meta: { title: 'Form', icon: 'form' }
+        meta: { title: '系统用户', icon: 'form' }
       }
     ]
   },
 
   {
-    path: '/nested',
+    path: '/operate',
     component: Layout,
-    redirect: '/nested/menu1',
-    name: 'nested',
-    meta: {
-      title: 'nested',
-      icon: 'nested'
-    },
     children: [
       {
-        path: 'menu1',
-        component: () => import('@/views/nested/menu1/index'), // Parent router-view
-        name: 'menu1',
-        meta: { title: 'menu1' },
-        children: [
-          {
-            path: 'menu1-1',
-            component: () => import('@/views/nested/menu1/menu1-1'),
-            name: 'menu1-1',
-            meta: { title: 'menu1-1' }
-          },
-          {
-            path: 'menu1-2',
-            component: () => import('@/views/nested/menu1/menu1-2'),
-            name: 'menu1-2',
-            meta: { title: 'menu1-2' },
-            children: [
-              {
-                path: 'menu1-2-1',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-1'),
-                name: 'menu1-2-1',
-                meta: { title: 'menu1-2-1' }
-              },
-              {
-                path: 'menu1-2-2',
-                component: () => import('@/views/nested/menu1/menu1-2/menu1-2-2'),
-                name: 'menu1-2-2',
-                meta: { title: 'menu1-2-2' }
-              }
-            ]
-          },
-          {
-            path: 'menu1-3',
-            component: () => import('@/views/nested/menu1/menu1-3'),
-            name: 'menu1-3',
-            meta: { title: 'menu1-3' }
-          }
-        ]
-      },
+        path: 'index',
+        name: 'Operate',
+        component: () => import('@/views/operate/index'),
+        meta: { title: '运营商', icon: 'form' }
+      }
+    ]
+  },
+
+  {
+    path: '/deposit',
+    component: Layout,
+    children: [
       {
-        path: 'menu2',
-        component: () => import('@/views/nested/menu2/index'),
-        meta: { title: 'menu2' }
+        path: 'index',
+        name: 'Deposit',
+        component: () => import('@/views/deposit/index'),
+        meta: { title: '提现申请', icon: 'form' }
+      }
+    ]
+  },
+
+  {
+    path: '/configure',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Configure',
+        component: () => import('@/views/configure/index'),
+        meta: { title: '系统配置', icon: 'form' }
       }
     ]
   },

@@ -42,9 +42,9 @@ service.interceptors.response.use(
           cancelButtonText: '取消',
           type: 'warning'
         }).then(() => {
-          store.dispatch('FedLogOut').then(() => {
-            location.reload()// 为了重新实例化vue-router对象 避免bug
-          })
+          // store.dispatch('FedLogOut').then(() => {
+          //   location.reload()// 为了重新实例化vue-router对象 避免bug
+          // })
         })
       }
       return Promise.reject('error')
