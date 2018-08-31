@@ -21,38 +21,33 @@
       </el-table-column>
       <el-table-column label="头像" align="center">
         <template slot-scope="scope">
-          <img :src="scope.row.awater" alt="" class="awater">
+          <img :src="scope.row.customer_avatar" alt="" class="awater">
         </template>
       </el-table-column>
       <el-table-column label="微信昵称" align="center">
         <template slot-scope="scope">
-          <span>{{scope.row.nickname}}</span>
+          <span>{{scope.row.customer_nickname ? scope.row.customer_nickname : '暂无'}}</span>
         </template>
       </el-table-column>
       <el-table-column label="手机"  align="center">
         <template slot-scope="scope">
-          {{scope.row.tel}}
-        </template>
-      </el-table-column>
-      <el-table-column label="性别" align="center">
-        <template slot-scope="scope">
-          {{scope.row.sex}}
+          {{scope.row.customer_mobile}}
         </template>
       </el-table-column>
       <el-table-column label="城市" align="center">
         <template slot-scope="scope">
-          {{scope.row.city}}
+          {{scope.row.customer_city ? scope.row.customer_city : '暂无'}}
         </template>
       </el-table-column>
       <el-table-column class-name="status-col" label="关注状态" align="center">
         <template slot-scope="scope">
-          {{scope.row.follow_status}}
+          {{scope.row.is_subscribed}}
         </template>
       </el-table-column>
       <el-table-column align="center" prop="created_at" label="关注时间">
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
-          <span>{{scope.row.follow_time}}</span>
+          <span>{{scope.row.subscribe_time}}</span>
         </template>
       </el-table-column>
     </el-table>
@@ -61,9 +56,9 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page.sync="currentPage"
-      :page-size="100"
+      :page-size="pageSize"
       layout="prev, pager, next, jumper"
-      :total="1000">
+      :total="totalPages">
     </el-pagination>
   </div>
 </template>
@@ -81,32 +76,30 @@ export default {
       formLabelWidth: '120px',
       dialogFormVisible: false,
       currentPage: 1,
+      pageSize: 10,
+      totalPages: 0
     }
   },
   created() {
     this.fetchData()
   },
   methods: {
-    fetchData() {
+    async fetchData() {
       this.listLoading = true
-      // getList(this.listQuery).then(response => {
-      //   this.list = response.data.items
-      //   this.listLoading = false
-      // })
-      let data = []
-      for(let i = 0; i < 8; i ++) {
-        let json = {
-          awater: 'http://p949rmsaf.bkt.clouddn.com/QQ%E5%9B%BE%E7%89%8720180516101622.jpg',
-          nickname: '白百合',
-          tel: '13136107533',
-          sex: '女',
-          city: '北京',
-          follow_status: '未关注',
-          follow_time: '2018-08-08 17:09:11'
+     let res = await this.$http({
+        method:'get',
+        url:'customer/list',
+        params:{
+          user_keyword: this.formInline.user,
+          current_page:  this.currentPage,
+          number_per_page: this.pageSize
         }
-        data.push(json)
+      })
+      console.log(res)
+      if(res.errno === 0) {
+        this.list = res.data.data
+        this.totalPages = res.data.totalPages
       }
-      this.list = data
       this.listLoading = false
     },
     onSubmit() {
@@ -118,6 +111,7 @@ export default {
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
+      this.fetchData()
     }
   }
 }

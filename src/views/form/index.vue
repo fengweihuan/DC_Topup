@@ -50,7 +50,7 @@
       <el-table-column align="center" prop="created_at" label="创建时间">
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
-          <span>{{scope.row.follow_time}}</span>
+          <span>{{scope.row.create_time}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" width="120px" label="操作">
@@ -66,9 +66,9 @@
       :current-page.sync="currentPage"
       :page-size="100"
       layout="prev, pager, next, jumper"
-      :total="1000">
+      :total="totalPages">
     </el-pagination>
-    <addUser ref="addUser"  v-bind:addType="addType"  v-bind:editForm="editForm"></addUser>
+    <addUser ref="addUser" @success="addSuccess"  v-bind:addType="addType"  v-bind:editForm="editForm"></addUser>
   </div>
 </template>
 
@@ -90,32 +90,50 @@ export default {
       dialogFormVisible: false,
       currentPage: 1,
       addType: '',
-      editForm: null
+      editForm: null,
+      totalPages: 0
     }
   },
   created() {
     this.fetchData()
   },
   methods: {
-    fetchData() {
+    addSuccess () {
+      this.fetchData()
+    },
+    async fetchData() {
       this.listLoading = true
       // getList(this.listQuery).then(response => {
       //   this.list = response.data.items
       //   this.listLoading = false
       // })
-      let data = []
-      for(let i = 0; i < 8; i ++) {
-        let json = {
-          user_id: 'te_chen',
-          user_name: '白百合',
-          user_mobile: '13136107533',
-          is_admin: '是',
-          account_name: '启用',
-          follow_time: '2018-08-08 17:09:11'
+      let res = await this.$http({
+        method:'get',
+        url:'/user/list',
+        params:{
+          user_keyword: this.formInline.user,
+          current_page:  this.currentPage,
+          number_per_page: 10
         }
-        data.push(json)
+      })
+      console.log(res)
+      if(res.errno === 0) {
+        this.list = res.data.data
+        this.totalPages = res.data.totalPages
       }
-      this.list = data
+      // let data = []
+      // for(let i = 0; i < 8; i ++) {
+      //   let json = {
+      //     user_id: 'te_chen',
+      //     user_name: '白百合',
+      //     user_mobile: '13136107533',
+      //     is_admin: '是',
+      //     account_name: '启用',
+      //     create_time: '2018-08-08 17:09:11'
+      //   }
+      //   data.push(json)
+      // }
+      // this.list = data
       this.listLoading = false
     },
     onSubmit() {
@@ -140,6 +158,7 @@ export default {
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
+      this.fetchData()
     }
   }
 }

@@ -76,19 +76,30 @@ export const constantRouterMap = [
     ]
   },
 
-  {
-    path: '/operate',
+  // {
+  //   path: '/operate',
+  //   component: Layout,
+  //   children: [
+  //     {
+  //       path: 'index',
+  //       name: 'Operate',
+  //       component: () => import('@/views/operate/index'),
+  //       meta: { title: '运营商', icon: 'form' }
+  //     }
+  //   ]
+  // }, 
+    {
+      path: '/coupon',
     component: Layout,
     children: [
       {
         path: 'index',
-        name: 'Operate',
-        component: () => import('@/views/operate/index'),
-        meta: { title: '运营商', icon: 'form' }
+        name: 'Coupon',
+        component: () => import('@/views/coupon/index'),
+        meta: { title: '优惠券', icon: 'form' }
       }
     ]
   },
-
   {
     path: '/deposit',
     component: Layout,

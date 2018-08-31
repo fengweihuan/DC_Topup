@@ -9,12 +9,12 @@
           </i>
         </el-input>
       </el-form-item>
-      <el-form-item label="">
+      <!-- <el-form-item label="">
         <el-select v-model="formInline.order_status" placeholder="请选择订单状态" clearable>
           <el-option :label="item.name" :value="item.value" v-for="(item, index) in orderStatus" :key="index"></el-option>
         </el-select>
       </el-form-item>
-      <el-form-item>
+      <el-form-item> -->
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
     </el-form>
@@ -26,7 +26,7 @@
       </el-table-column>
       <el-table-column label="订单编号" align="center">
         <template slot-scope="scope">
-          {{scope.row.id}}
+          {{scope.row.order_code}}
         </template>
       </el-table-column>
       <el-table-column label="订单ID" align="center">
@@ -36,14 +36,14 @@
       </el-table-column>
       <el-table-column label="用户手机"  align="center">
         <template slot-scope="scope">
-          {{scope.row.tel}}
+          {{scope.row.mobile_no}}
         </template>
       </el-table-column>
-       <el-table-column label="充值面额" align="center">
+       <!-- <el-table-column label="充值面额" align="center">
         <template slot-scope="scope">
           {{scope.row.money}}
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column class-name="status-col" label="订单状态" align="center">
         <template slot-scope="scope">
           {{scope.row.order_status}}
@@ -52,7 +52,7 @@
       <el-table-column align="center" prop="created_at" label="添加时间">
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
-          <span>{{scope.row.time}}</span>
+          <span>{{scope.row.order_create_time}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" width="120px" label="操作">
@@ -61,14 +61,14 @@
         </template>
       </el-table-column>
     </el-table>
-    <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
+    <el-dialog title="更新订单" :visible.sync="dialogFormVisible">
       <el-form :model="form">
         <el-form-item label="订单ID" :label-width="formLabelWidth">
           <el-input v-model="form.order_id" auto-complete="off" style="width:300px"></el-input>
         </el-form-item>
         <el-form-item label="订单状态" :label-width="formLabelWidth">
           <el-select v-model="form.order_status" placeholder="请选择订单状态" clearable>
-            <el-option :label="item.order_status" :value="item.value" v-for="(item, index) in orderStatus" :key="index"></el-option>
+            <el-option :label="item.name" :value="item.value" v-for="(item, index) in orderStatus" :key="index"></el-option>
           </el-select>
         </el-form-item>
       </el-form>
@@ -82,9 +82,9 @@
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page.sync="currentPage"
-      :page-size="100"
+      :page-size="pageSize"
       layout="prev, pager, next, jumper"
-      :total="1000">
+      :total="totalPages">
     </el-pagination>
   </div>
 </template>
@@ -105,20 +105,24 @@ export default {
       dialogFormVisible: false,
       orderStatus: [
         {
-          name: '新订单',
-          value: '新订单'
+          name: '新增',
+          value: 'new'
         },
         {
-          name: '已接订单',
-          value: '已接订单'
+          name: '成功',
+          value: 'success'
         },
         {
-          name: '已完成订单',
-          value: '已完成订单'
+          name: '失败',
+          value: 'fail'
         },
         {
-          name: '失败订单',
-          value: '失败订单'
+          name: '进行中',
+          value: 'in_progress'
+        },
+        {
+          name: '超时',
+          value: 'timeout'
         },
       ],
       form: {
@@ -126,6 +130,8 @@ export default {
         order_status: ''
       },
       currentPage: 1,
+      pageSize: 10,
+      totalPages: 0
     }
   },
   filters: {
@@ -134,25 +140,26 @@ export default {
     this.fetchData()
   },
   methods: {
-    fetchData() {
+    async fetchData() {
       this.listLoading = true
       // getList(this.listQuery).then(response => {
       //   this.list = response.data.items
       //   this.listLoading = false
       // })
-      let data = []
-      for(let i = 0; i < 8; i ++) {
-        let json = {
-          id: 342027191,
-          order_id: '2018080181SDASDFASDA',
-          tel: '13136107533',
-          money: 102,
-          order_status: '已接单',
-          time: '2018-08-14'
+      let res = await this.$http({
+        method:'get',
+        url:'order/list',
+        params:{
+          user_keyword: this.formInline.user,
+          current_page:  this.currentPage,
+          number_per_page: this.pageSize
         }
-        data.push(json)
+      })
+      console.log(res)
+       if(res.errno === 0) {
+        this.list = res.data.data
+        this.totalPages = res.data.totalPages
       }
-      this.list = data
       this.listLoading = false
     },
      // 编辑列表
@@ -164,9 +171,24 @@ export default {
       this.dialogFormVisible = true
     },
     // 编辑确定
-    changeList () {
+    async changeList () {
       console.log(this.form)
-      this.dialogFormVisible = false
+      let res = await this.$http.post('order/update', {
+        order_id: this.form.order_id,
+        order_status:this.form.order_status
+      })
+      console.log(res)
+      if(res.errno === 0) {
+        this.$message({
+          message: '修改成功',
+          type: 'success'
+        })
+      } else {
+        this.$message({
+          message: '修改失败',
+          type: 'warning'
+        })
+      }
     },
     onSubmit() {
       console.log(this.formInline)
@@ -177,6 +199,7 @@ export default {
     },
     handleCurrentChange(val) {
       console.log(`当前页: ${val}`);
+      this.fetchData()
     }
   }
 }

@@ -1,8 +1,8 @@
 <template>
-  <div class="app-container operate">
+  <div class="app-container coupon">
     <el-form :inline="true" :model="formInline" class="demo-form-inline">
       <el-form-item label="" >
-        <el-input v-model="formInline.user"  style="width:300px" placeholder="运营商名称" clearable>
+        <el-input v-model="formInline.user"  style="width:300px" placeholder="优惠券名称" clearable>
           <i
             class="el-icon-search el-input__icon"
             slot="prefix">
@@ -11,6 +11,7 @@
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="onSubmit">查询</el-button>
+        <el-button type="primary" @click="addVoucher">添加优惠券</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="list" v-loading="listLoading" element-loading-text="Loading" border fit highlight-current-row>
@@ -19,38 +20,50 @@
           {{scope.$index + 1}}
         </template>
       </el-table-column>
-      <el-table-column label="运营商名称" align="center">
+      <el-table-column label="分类" align="center">
         <template slot-scope="scope">
-          <span>{{scope.row.nickname}}</span>
+          <span>{{scope.row.voucher_cate}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="工号"  align="center">
+      <el-table-column label="券名"  align="center">
         <template slot-scope="scope">
-          {{scope.row.job}}
+          {{scope.row.voucher_title}}
         </template>
       </el-table-column>
-      <el-table-column label="工号归属" align="center">
+      <el-table-column label="使用条件" align="center">
         <template slot-scope="scope">
-          {{scope.row.job_attach}}
+          {{scope.row.voucher_usage_condition}}
         </template>
       </el-table-column>
-      <el-table-column label="登陆状态" align="center">
+      <el-table-column label="领取条件" align="center">
         <template slot-scope="scope">
-          {{scope.row.login_status}}
+          {{scope.row.voucher_claim_condition}}
         </template>
       </el-table-column>
-      <el-table-column align="center" prop="created_at" label="登陆时间">
+      <el-table-column label="状态" align="center">
+        <template slot-scope="scope">
+          {{computActivity(scope.row.voucher_activity)}}
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="created_at" label="有效期">
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
-          <span>{{scope.row.login_time}}</span>
+          <span>{{scope.row.voucher_valid_to}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column align="center" prop="created_at" label="添加时间">
+        <template slot-scope="scope">
+          <i class="el-icon-time"></i>
+          <span>{{scope.row.voucher_create_time}}</span>
         </template>
       </el-table-column>
       <el-table-column align="center" width="120px" label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" @click="undercarriage(scope.row)">下线</el-button>
+          <el-button type="primary" @click="undercarriage(scope.row)">编辑</el-button>
         </template>
       </el-table-column>
     </el-table>
+     <editConfig ref="editConfig" @success="fetchData" :editForm="editForm"></editConfig>
     <el-pagination 
       class="pagination_wrap"
       @size-change="handleSizeChange"
@@ -64,7 +77,11 @@
 </template>
 
 <script>
+import editConfig from './components/editConfig'
 export default {
+  components: {
+    editConfig
+  },
   data() {
     return {
       list: null,
@@ -72,6 +89,7 @@ export default {
       formInline: {
         user: ''
       },
+      editForm: {},
       formLabelWidth: '120px',
       dialogFormVisible: false,
       currentPage: 1,
@@ -85,42 +103,60 @@ export default {
   methods: {
     async fetchData() {
       this.listLoading = true
-      let res = await this.$http.get('customer/list', {
-        params:{
+      let res = await this.$http.get('voucher/list',{
+        params: {
           user_keyword: this.formInline.user,
           current_page:  this.currentPage,
           number_per_page: this.pageSize
         }
       })
-      console.log(res)
       if(res.errno === 0) {
         this.list = res.data.data
         this.totalPages = res.data.totalPages
       }
       this.listLoading = false
     },
+    computActivity (type) {
+      if(type === 'new') {
+        return '新增'
+      } else if(type === 'disabled') {
+        return '已下架'
+      } else {
+        return '已激活'
+      }
+    },
     onSubmit() {
       console.log(this.formInline)
       this.fetchData()
     },
+    addVoucher() {
+      this.editForm =  {}
+      this.$nextTick(() => {
+        this.$refs.editConfig.show()
+      })
+    },
     undercarriage (row) {
       console.log(row)
-      this.$confirm('此操作将下线运营商, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        center: true
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '下线成功!'
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消'
-        });
+      this.editForm =  row
+      this.$nextTick(() => {
+        this.$refs.editConfig.show()
       })
+      // this.$confirm('此操作将下架该优惠券, 是否继续?', '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning',
+      //   center: true
+      // }).then(() => {
+      //   this.$message({
+      //     type: 'success',
+      //     message: '下架成功!'
+      //   });
+      // }).catch(() => {
+      //   this.$message({
+      //     type: 'info',
+      //     message: '已取消'
+      //   });
+      // })
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);
@@ -133,7 +169,7 @@ export default {
 }
 </script>
 <style rel="stylesheet/scss" lang="scss" scoped>
-.operate{
+.coupon{
   .pagination_wrap{
     margin-top: 40px;
     text-align: center;
