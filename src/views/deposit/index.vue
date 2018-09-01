@@ -53,8 +53,8 @@
     </el-table>
     <el-dialog title="更新提现" :visible.sync="dialogFormVisible" >
       <el-form :model="form" style="padding-right:60px; padding-left: 30px"  ref="form">
-        <el-form-item label="优惠券状态" :label-width="formLabelWidth" prop="config_value">
-          <el-select v-model="form.withdraw_status" placeholder="请选择优惠券状态">
+        <el-form-item label="提现状态" :label-width="formLabelWidth" prop="config_value">
+          <el-select v-model="form.withdraw_status" placeholder="请选择提现状态">
             <el-option :label="item.name" :value="item.value" v-for="(item, index) in statusArr" :key="index"></el-option>
           </el-select>
         </el-form-item>

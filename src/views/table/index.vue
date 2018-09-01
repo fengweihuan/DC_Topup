@@ -13,9 +13,13 @@
         <el-select v-model="formInline.order_status" placeholder="请选择订单状态" clearable>
           <el-option :label="item.name" :value="item.value" v-for="(item, index) in orderStatus" :key="index"></el-option>
         </el-select>
-      </el-form-item>
-      <el-form-item> -->
+      </el-form-item> -->
+      <el-form-item >
         <el-button type="primary" @click="onSubmit">查询</el-button>
+      </el-form-item>
+      <el-form-item style="display:float;float:right">
+        <el-button type="primary" @click="toggleLock(0)">锁单</el-button>
+        <el-button type="primary" @click="toggleLock(1)">停止锁单</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="list" v-loading="listLoading" element-loading-text="Loading" border fit highlight-current-row>
@@ -161,6 +165,22 @@ export default {
         this.totalPages = res.data.totalPages
       }
       this.listLoading = false
+    },
+    toggleLock(num){
+      let url = num === 0 ? 'order/lock' : 'order/unlock'
+      let message = num === 0 ? '锁单' : '停止锁单'
+      this.$http.get(url).then((res) => {
+        if(res.errno === 0) {
+          this.$message({
+            type: 'success',
+            message: message + '成功'
+          })
+        } else {
+          this.$message.error(message + '失败')
+        }
+      }).catch((error) => {
+        this.$message.error(message + '失败')
+      })
     },
      // 编辑列表
     editHandle (row) {
