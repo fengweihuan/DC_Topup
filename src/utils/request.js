@@ -30,8 +30,9 @@ service.interceptors.response.use(
   */
     const res = response.data
     if (res.errno !== 0) {
+      let mess = res.data || res.msg || Object.values(res)[0]
       Message({
-        message: res.message,
+        message: mess,
         type: 'error',
         duration: 5 * 1000
       })

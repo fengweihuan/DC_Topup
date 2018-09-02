@@ -18,6 +18,7 @@
         <el-button type="primary" @click="onSubmit">查询</el-button>
       </el-form-item>
       <el-form-item style="display:float;float:right">
+         <el-button type="primary" @click="carrieLogin">运营商登陆</el-button>
         <el-button type="primary" @click="toggleLock(0)">锁单</el-button>
         <el-button type="primary" @click="toggleLock(1)">停止锁单</el-button>
       </el-form-item>
@@ -81,6 +82,7 @@
         <el-button type="primary" @click="changeList">确 定</el-button>
       </div>
     </el-dialog>
+    <addUser ref="addUser" ></addUser>
     <el-pagination 
       class="pagination_wrap"
       @size-change="handleSizeChange"
@@ -95,8 +97,11 @@
 
 <script>
 import { getList } from '@/api/table'
-
+import addUser from './components/addUser.vue'
 export default {
+  components: {
+    addUser
+  },
   data() {
     return {
       list: null,
@@ -165,6 +170,11 @@ export default {
         this.totalPages = res.data.totalPages
       }
       this.listLoading = false
+    },
+    carrieLogin () {
+      this.$nextTick(() => {
+        this.$refs.addUser.show()
+      })
     },
     toggleLock(num){
       let url = num === 0 ? 'order/lock' : 'order/unlock'

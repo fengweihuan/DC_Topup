@@ -2,15 +2,15 @@
   <div class="login-container">
     <el-form class="login-form" autoComplete="on" :model="loginForm" :rules="loginRules" ref="loginForm" label-position="left">
       <h3 class="title">多创生活管理后台</h3>
-      <el-form-item prop="username">
+      <el-form-item prop="account_name">
         <span class="svg-container svg-container_login">
           <svg-icon icon-class="user" />
         </span>
         <el-input name="username" type="text" v-model="loginForm.account_name" autoComplete="on" placeholder="请输入账号" />
       </el-form-item>
-      <el-form-item prop="password">
+      <el-form-item prop="account_password">
         <span class="svg-container">
-          <svg-icon icon-class="password"></svg-icon>
+          <svg-icon icon-class="account_password"></svg-icon>
         </span>
         <el-input name="password" :type="pwdType" @keyup.enter.native="handleLogin" v-model="loginForm.account_password" autoComplete="on"
           placeholder="请输入密码"></el-input>
@@ -36,8 +36,8 @@ export default {
   name: 'login',
   data() {
     const validateUsername = (rule, value, callback) => {
-      if (!isvalidUsername(value)) {
-        callback(new Error('请输入正确的用户名'))
+      if (!value || value.length < 0 ) {
+        callback(new Error('请输入用户名'))
       } else {
         callback()
       }
@@ -51,8 +51,10 @@ export default {
     }
     return {
       loginForm: {
-        account_name: 'te_chen',
-        account_password: 'c6aceaacc7880db14fa952c385ab6fc0'
+        // account_name: 'te_chen',
+        // account_password: 'c6aceaacc7880db14fa952c385ab6fc0'
+        account_name: '',
+        account_password: ''
       },
       loginRules: {
         account_name: [{ required: true, trigger: 'blur', validator: validateUsername }],
