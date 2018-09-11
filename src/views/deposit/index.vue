@@ -39,6 +39,11 @@
           {{ compotStatus(scope.row.application_status)}}
         </template>
       </el-table-column>
+       <el-table-column label="微信收款码" align="center">
+        <template slot-scope="scope">
+          <img :src="scope.row.withdraw_wx_qrcode" alt="" style="height:160px;">
+        </template>
+      </el-table-column>
       <el-table-column align="center" prop="created_at" label="申请时间">
         <template slot-scope="scope">
           <i class="el-icon-time"></i>
