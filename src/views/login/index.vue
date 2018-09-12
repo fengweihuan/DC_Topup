@@ -31,6 +31,7 @@
 
 <script>
 import { isvalidUsername } from '@/utils/validate'
+import  md5 from 'blueimp-md5'
 
 export default {
   name: 'login',
@@ -52,7 +53,7 @@ export default {
     return {
       loginForm: {
         // account_name: 'te_chen',
-        // account_password: 'c6aceaacc7880db14fa952c385ab6fc0'
+        // account_password: 'dc654321'
         account_name: '',
         account_password: ''
       },
@@ -76,7 +77,13 @@ export default {
       this.$refs.loginForm.validate(valid => {
         if (valid) {
           this.loading = true
-          this.$store.dispatch('Login', this.loginForm).then(() => {
+          let json = {
+            account_name: this.loginForm.account_name,
+            account_password: md5(this.loginForm.account_password)
+          }
+          console.log(json)
+          // return false
+          this.$store.dispatch('Login', json).then(() => {
             this.loading = false
             this.$router.push({ path: '/' })
           }).catch(() => {

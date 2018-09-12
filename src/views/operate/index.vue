@@ -1,19 +1,11 @@
 <template>
   <div class="app-container operate">
-    <el-form :inline="true" :model="formInline" class="demo-form-inline">
-      <el-form-item label="" >
-        <el-input v-model="formInline.user"  style="width:300px" placeholder="运营商名称" clearable>
-          <i
-            class="el-icon-search el-input__icon"
-            slot="prefix">
-          </i>
-        </el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">查询</el-button>
+    <el-form :inline="true" class="demo-form-inline">
+      <el-form-item style="float:right">
+        <el-button type="primary" @click="onSubmit">添加工号</el-button>
       </el-form-item>
     </el-form>
-    <el-table :data="list" v-loading="listLoading" element-loading-text="Loading" border fit highlight-current-row>
+    <el-table :data="operatorData" v-loading="listLoading" element-loading-text="Loading" border fit highlight-current-row>
       <el-table-column align="center" width="100px" label='序号' >
         <template slot-scope="scope">
           {{scope.$index + 1}}
@@ -21,36 +13,42 @@
       </el-table-column>
       <el-table-column label="运营商名称" align="center">
         <template slot-scope="scope">
-          <span>{{scope.row.nickname}}</span>
+          <span>{{scope.row.operator_name}}</span>
         </template>
       </el-table-column>
-      <el-table-column label="工号"  align="center">
+      <el-table-column label="运营商账号"  align="center">
         <template slot-scope="scope">
-          {{scope.row.job}}
+          {{scope.row.operator_account}}
         </template>
       </el-table-column>
-      <el-table-column label="工号归属" align="center">
+      <el-table-column label="运营商密码" align="center">
         <template slot-scope="scope">
-          {{scope.row.job_attach}}
-        </template>
-      </el-table-column>
-      <el-table-column label="登陆状态" align="center">
-        <template slot-scope="scope">
-          {{scope.row.login_status}}
-        </template>
-      </el-table-column>
-      <el-table-column align="center" prop="created_at" label="登陆时间">
-        <template slot-scope="scope">
-          <i class="el-icon-time"></i>
-          <span>{{scope.row.login_time}}</span>
+          {{scope.row.operator_password ? "********" : '暂无'}}
         </template>
       </el-table-column>
       <el-table-column align="center" width="120px" label="操作">
         <template slot-scope="scope">
-          <el-button type="primary" @click="undercarriage(scope.row)">下线</el-button>
+          <el-button type="primary" @click="undercarriage(scope.row)">编辑</el-button>
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog :title="popTitle" :visible.sync="dialogFormVisible1">
+      <el-form :model="form1" ref="form1" :rules="rules1">
+        <el-form-item label="账户" prop="operator_account"  :label-width="formLabelWidth">
+          <el-input v-model="form1.operator_account" auto-complete="off" placeholder="请填写账户"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="operator_password"  :label-width="formLabelWidth">
+          <el-input v-model="form1.operator_password" auto-complete="off" placeholder="请填写密码"></el-input>
+        </el-form-item>
+        <el-form-item label="用户名" prop="operator_name"  :label-width="formLabelWidth">
+          <el-input v-model="form1.operator_name" auto-complete="off" placeholder="请填写用户名"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible1 = false">取 消</el-button>
+        <el-button type="primary" @click="addOperatorHndle">确 定</el-button>
+      </div>
+    </el-dialog>
     <el-pagination 
       class="pagination_wrap"
       @size-change="handleSizeChange"
@@ -67,16 +65,33 @@
 export default {
   data() {
     return {
-      list: null,
+      operatorData: null,
       listLoading: true,
-      formInline: {
-        user: ''
+      dialogFormVisible1: false,
+      form1: {
+        operator_id:'',
+        operator_account: '',
+        operator_password: '',
+        operator_name: ''
+      },
+      rules1: {
+        operator_account: [
+          { required: true, message: '请填写账户', trigger: 'change' }
+        ],
+        operator_password: [
+          { required: true, message: '请填写密码', trigger: 'change' }
+        ],
+        operator_name: [
+          { required: true, message: '请填写用户名', trigger: 'change' }
+        ]
       },
       formLabelWidth: '120px',
       dialogFormVisible: false,
       currentPage: 1,
       pageSize: 10,
-      totalPages: 0
+      totalPages: 0,
+      currentPassword: '',
+      popTitle: '添加工号'
     }
   },
   created() {
@@ -85,42 +100,65 @@ export default {
   methods: {
     async fetchData() {
       this.listLoading = true
-      let res = await this.$http.get('customer/list', {
-        params:{
-          user_keyword: this.formInline.user,
-          current_page:  this.currentPage,
-          number_per_page: this.pageSize
-        }
-      })
-      console.log(res)
+      let res = await this.$http.get('operator/list')
       if(res.errno === 0) {
-        this.list = res.data.data
-        this.totalPages = res.data.totalPages
+        this.operatorData = res.data
       }
       this.listLoading = false
     },
+    addOperatorHndle() {
+      this.$refs.form1.validate(async (valid) => {
+        if (valid) {
+          console.log(this.form1)
+          
+          
+          if (this.form1.operator_id || this.form1.operator_id === 0) {
+            this.form1.operator_id = this.form1.operator_id.toString()
+          }
+          let json = Object.assign({}, this.form1)
+          if(this.form1.operator_password === '********') {
+            json.operator_password = this.currentPassword
+          }
+          let url = this.popTitle === '添加工号' ? 'operator/add' : 'operator/edit'
+          let res  = await this.$http.post(url, json)
+          console.log(res)
+          if(res.errno === 0) {
+            this.dialogFormVisible1 = false
+            this.$message({
+              type:'success',
+              message: this.popTitle === '添加工号' ? '添加成功' :'修改成功'
+            })
+            for(let i in this.form1) {
+              this.form1[i] = ''
+            }
+            this.fetchData()
+          } else {
+            this.$message({
+              type: 'error',
+              message: '添加失败'
+            })
+          }
+        } else {
+          console.log('error submit!!');
+        }
+      })
+    },
     onSubmit() {
-      console.log(this.formInline)
-      this.fetchData()
+      this.popTitle = '添加工号'
+      for(let i in this.form1) {
+        this.form1[i] = ''
+      }
+      this.dialogFormVisible1 = true
     },
     undercarriage (row) {
-      console.log(row)
-      this.$confirm('此操作将下线运营商, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        center: true
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '下线成功!'
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消'
-        });
-      })
+      this.popTitle = '编辑工号'
+      this.form1
+      for(let i in this.form1) {
+        this.form1[i] = row[i]
+      }
+      this.form1.operator_password = '********'
+      this.currentPassword = row.operator_password
+      this.dialogFormVisible1 = true
     },
     handleSizeChange(val) {
       console.log(`每页 ${val} 条`);

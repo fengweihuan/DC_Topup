@@ -105,7 +105,7 @@ export default {
       this.listLoading = true
       let res = await this.$http.get('voucher/list',{
         params: {
-          user_keyword: this.formInline.user,
+          voucher_keyword: this.formInline.user,
           current_page:  this.currentPage,
           number_per_page: this.pageSize
         }

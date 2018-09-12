@@ -76,18 +76,18 @@ export const constantRouterMap = [
     ]
   },
 
-  // {
-  //   path: '/operate',
-  //   component: Layout,
-  //   children: [
-  //     {
-  //       path: 'index',
-  //       name: 'Operate',
-  //       component: () => import('@/views/operate/index'),
-  //       meta: { title: '运营商', icon: 'form' }
-  //     }
-  //   ]
-  // }, 
+  {
+    path: '/operate',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Operate',
+        component: () => import('@/views/operate/index'),
+        meta: { title: '运营商', icon: 'form' }
+      }
+    ]
+  }, 
     {
       path: '/coupon',
     component: Layout,

@@ -41,7 +41,7 @@
       </el-table-column>
       <el-table-column class-name="status-col" label="关注状态" align="center">
         <template slot-scope="scope">
-          {{scope.row.is_subscribed}}
+          {{scope.row.is_subscribed === 'yes' ? '已关注' : '未关注'}}
         </template>
       </el-table-column>
       <el-table-column align="center" prop="created_at" label="关注时间">

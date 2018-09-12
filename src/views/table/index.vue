@@ -19,8 +19,8 @@
       </el-form-item>
       <el-form-item style="display:float;float:right">
          <el-button type="primary" @click="carrieLogin">运营商登陆</el-button>
-        <el-button type="primary" @click="toggleLock(0)">锁单</el-button>
-        <el-button type="primary" @click="toggleLock(1)">停止锁单</el-button>
+        <el-button type="primary" :disabled="disabledType === 0" @click="toggleLock(0)">锁单</el-button>
+        <el-button type="primary" :disabled="disabledType === 1" @click="toggleLock(1)">停止锁单</el-button>
       </el-form-item>
     </el-form>
     <el-table :data="list" v-loading="listLoading" element-loading-text="Loading" border fit highlight-current-row>
@@ -51,7 +51,7 @@
       </el-table-column> -->
       <el-table-column class-name="status-col" label="订单状态" align="center">
         <template slot-scope="scope">
-          {{scope.row.order_status}}
+          {{ computStatus(scope.row.order_status) }}
         </template>
       </el-table-column>
       <el-table-column align="center" prop="created_at" label="添加时间">
@@ -110,6 +110,7 @@ export default {
         user: '',
         order_status: ''
       },
+      disabledType: 0,
       formLabelWidth: '120px',
       dialogFormVisible: false,
       orderStatus: [
@@ -147,6 +148,7 @@ export default {
   },
   created() {
     this.fetchData()
+    this.getLocked()
   },
   methods: {
     async fetchData() {
@@ -159,7 +161,7 @@ export default {
         method:'get',
         url:'order/list',
         params:{
-          user_keyword: this.formInline.user,
+          order_keyword: this.formInline.user,
           current_page:  this.currentPage,
           number_per_page: this.pageSize
         }
@@ -170,6 +172,21 @@ export default {
         this.totalPages = res.data.totalPages
       }
       this.listLoading = false
+    },
+    computStatus (code) {
+      let str = ''
+      this.orderStatus.forEach((item, index, arr) => {
+        if(code === item.value) {
+          str = item.name
+        }
+      })
+      return str || '完成'
+    },
+    async getLocked () {
+      let res = await this.$http.get('order/locked')
+      if(res.errno === 0) {
+        this.disabledType = res.data === 'no' ? 1 : 0
+      }
     },
     carrieLogin () {
       this.$nextTick(() => {
@@ -185,6 +202,7 @@ export default {
             type: 'success',
             message: message + '成功'
           })
+          this.getLocked()
         } else {
           this.$message.error(message + '失败')
         }

@@ -22,7 +22,7 @@
           {{scope.$index + 1}}
         </template>
       </el-table-column>
-      <el-table-column label="姓名" align="center">
+      <el-table-column label="用户名称" align="center">
         <template slot-scope="scope">
           <span>{{scope.row.user_name	}}</span>
         </template>
@@ -37,12 +37,12 @@
           {{scope.row.user_mobile}}
         </template>
       </el-table-column>
-      <el-table-column label="管理员" align="center">
+      <el-table-column label="是否为管理员" align="center">
         <template slot-scope="scope">
-          {{scope.row.is_admin}}
+          {{scope.row.is_admin === 'yes' ? '是' : '否'}}
         </template>
       </el-table-column>
-      <el-table-column class-name="status-col" label="账户状态" align="center">
+      <el-table-column class-name="status-col" label="账户名称" align="center">
         <template slot-scope="scope">
           {{scope.row.account_name}}
         </template>
